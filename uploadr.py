@@ -66,6 +66,7 @@ import os
 import shelve
 import string
 import time
+import httplib
 import urllib
 import urllib2
 import webbrowser
@@ -97,6 +98,7 @@ EXCLUDED_FOLDERS = eval(config.get('Config','EXCLUDED_FOLDERS'))
 ALLOWED_EXT = eval(config.get('Config','ALLOWED_EXT'))
 FILE_MAX_SIZE = eval(config.get('Config','FILE_MAX_SIZE'))
 MANAGE_CHANGES = eval(config.get('Config','MANAGE_CHANGES'))
+NICE_LEVEL = eval(config.get('Config','NICE_LEVEL'))
 
 
 #print FILES_DIR
@@ -110,6 +112,7 @@ MANAGE_CHANGES = eval(config.get('Config','MANAGE_CHANGES'))
 #print ALLOWED_EXT
 #print FILE_MAX_SIZE
 #print MANAGE_CHANGES
+#print NICE_LEVEL
 #sys.exit()
 
 ##
@@ -336,37 +339,52 @@ class Uploadr:
                 print(str(sys.exc_info()))
             return False
 
-    def removeDeletedMedia( self ):
-        """ Remove files deleted at the local source
-        loop through database
-        check if file exists
-        if exists, continue
-        if not exists, delete photo from fickr
-        http://www.flickr.com/services/api/flickr.photos.delete.html
-        """
-
-        print("*****Removing deleted files*****")
-
-        if ( not self.checkToken() ):
-            self.authenticate()
-        con = lite.connect(DB_PATH)
-        con.text_factory = str
-
-        with con:
-            cur = con.cursor()
-            cur.execute("SELECT files_id, path FROM files")
-            rows = cur.fetchall()
-
-            for row in rows:
-                if( not os.path.isfile(row[1])):
-                    success = self.deleteFile(row, cur)
-        print("*****Completed deleted files*****")
+#    def removeDeletedMedia( self ):
+#        """ Remove files deleted at the local source
+#        loop through database
+#        check if file exists
+#        if exists, continue
+#        if not exists, delete photo from fickr
+#        http://www.flickr.com/services/api/flickr.photos.delete.html
+#        """
+#
+#        print("*****Removing deleted files*****")
+#
+#        if ( not self.checkToken() ):
+#            self.authenticate()
+#        con = lite.connect(DB_PATH)
+#        con.text_factory = str
+#
+#        with con:
+#            cur = con.cursor()
+#            cur.execute("SELECT files_id, path FROM files")
+#            rows = cur.fetchall()
+#
+#            for row in rows:
+#                if( not os.path.isfile(row[1])):
+#                    success = self.deleteFile(row, cur)
+#        print("*****Completed deleted files*****")
 
     def upload( self ):
         """ upload
         """
 
-        print("*****Uploading files*****")
+        print("***** Uploading files & setting NICENESS at " + str(NICE_LEVEL) + " ****")
+
+        os.nice( NICE_LEVEL )
+        """ Added Niceness level when upload begins for processing depending on what this is running on.
+            In my case, I'm running on a Raspberry Pi Rev B, so I don't want to kill it.
+            For my setting I am running at a niceness of 15. 
+        """
+
+#        conn = httplib.HTTPSConnection("api.pushover.net:443")
+#        conn.request("POST", "/1/messages.json",
+#          urllib.urlencode({
+#            "token": "APP_TOKEN",
+#            "user": "USER_KEY",
+#            "message": "hello world",
+#          }), { "Content-type": "application/x-www-form-urlencoded" })
+#        conn.getresponse()
 
         allMedia = self.grabNewFiles()
         print("Found " + str(len(allMedia)) + " files")
@@ -381,7 +399,11 @@ class Uploadr:
                 print("   " + str(coun) + " files processed (uploaded or md5ed)")
         if (coun%100 > 0):
             print("   " + str(coun) + " files processed (uploaded or md5ed)")
-        print("*****Completed uploading files*****")
+        print("***** Completed uploading files & resetting NICENESS *****")
+
+        os.nice(0)
+        """This resets the nice level once upload is complete so the rest of the process can run as normal.
+        """
 
     def grabNewFiles( self ):
         """ grabNewFiles
@@ -490,48 +512,48 @@ class Uploadr:
 
         return success
 
-    def deleteFile( self, file, cur ):
-        success = False
-        print("Deleting file: " + str(file[1]))
-
-        try:
-            d = {
-                "auth_token"      : str(self.token),
-                "perms"           : str(self.perms),
-                "format"          : "rest",
-                "method"          : "flickr.photos.delete",
-                "photo_id"        : str( file[0] ),
-                "format"          : "json",
-                "nojsoncallback"  : "1"
-            }
-            sig = self.signCall( d )
-            url = self.urlGen( api.rest, d, sig )
-            res = self.getResponse( url )
-            if ( self.isGood( res ) ):
-
-                # Find out if the file is the last item in a set, if so, remove the set from the local db
-                cur.execute("SELECT set_id FROM files WHERE files_id = ?", (file[0],))
-                row = cur.fetchone()
-                cur.execute("SELECT set_id FROM files WHERE set_id = ?", (row[0],))
-                rows = cur.fetchall()
-                if(len(rows) == 1):
-                    print("File is the last of the set, deleting the set ID: " + str(row[0]))
-                    cur.execute("DELETE FROM sets WHERE set_id = ?", (row[0],))
-
-                # Delete file record from the local db
-                cur.execute("DELETE FROM files WHERE files_id = ?", (file[0],))
-                print("Successful deletion.")
-                success = True
-            else :
-                if( res['code'] == 1 ):
-                    # File already removed from Flicker
-                    cur.execute("DELETE FROM files WHERE files_id = ?", (file[0],))
-                else :
-                    self.reportError( res )
-        except:
-            # If you get 'attempt to write a readonly database', set 'admin' as owner of the DB file (fickerdb) and 'users' as group
-            print(str(sys.exc_info()))
-        return success
+#    def deleteFile( self, file, cur ):
+#        success = False
+#        print("Deleting file: " + str(file[1]))#
+#
+#        try:
+#            d = {
+#                "auth_token"      : str(self.token),
+#                "perms"           : str(self.perms),
+#                "format"          : "rest",
+#                "method"          : "flickr.photos.delete",
+#                "photo_id"        : str( file[0] ),
+#                "format"          : "json",
+#                "nojsoncallback"  : "1"
+#            }
+#            sig = self.signCall( d )
+#            url = self.urlGen( api.rest, d, sig )
+#            res = self.getResponse( url )
+#            if ( self.isGood( res ) ):
+#
+#                # Find out if the file is the last item in a set, if so, remove the set from the local db
+#                cur.execute("SELECT set_id FROM files WHERE files_id = ?", (file[0],))
+#                row = cur.fetchone()
+#                cur.execute("SELECT set_id FROM files WHERE set_id = ?", (row[0],))
+#                rows = cur.fetchall()
+#                if(len(rows) == 1):
+#                    print("File is the last of the set, deleting the set ID: " + str(row[0]))
+#                    cur.execute("DELETE FROM sets WHERE set_id = ?", (row[0],))
+#
+#                # Delete file record from the local db
+#                cur.execute("DELETE FROM files WHERE files_id = ?", (file[0],))
+#                print("Successful deletion.")
+#                success = True
+#            else :
+#                if( res['code'] == 1 ):
+#                    # File already removed from Flicker
+#                    cur.execute("DELETE FROM files WHERE files_id = ?", (file[0],))
+#                else :
+#                    self.reportError( res )
+#        except:
+#            # If you get 'attempt to write a readonly database', set 'admin' as owner of the DB file (fickerdb) and 'users' as group
+#            print(str(sys.exc_info()))
+#        return success
 
     def logSetCreation( self, setId, setName, primaryPhotoId, cur, con):
         print("adding set to log: " + str(setName))
@@ -630,7 +652,7 @@ class Uploadr:
             time.sleep( SLEEP_TIME )
 
     def createSets( self ):
-        print('*****Creating Sets*****')
+        print('***** Creating Sets *****')
 
         con = lite.connect(DB_PATH)
         con.text_factory = str
@@ -753,7 +775,7 @@ class Uploadr:
             return m.hexdigest()
 
     def addTagsToUploadedPhotos ( self ) :
-        print('*****Adding tags to existing photos*****')
+        print('***** Adding tags to existing photos *****')
 
         con = lite.connect(DB_PATH)
         con.text_factory = str
@@ -774,7 +796,7 @@ class Uploadr:
                     if status == False:
                         print("Error: cannot add tag to file: " + file[1])
 
-        print('*****Completed adding tags*****')
+        print('***** Completed adding tags *****')
 
     def addTagToPhoto(self, file, tagName, cur, con) :
         print("Adding tag " + tagName + " to photo: " + str(file[1]) + " (" + str(file[0]) + ")")
@@ -806,7 +828,7 @@ class Uploadr:
 
     # Method to clean unused sets
     def removeUselessSetsTable( self ) :
-        print('*****Removing empty Sets from DB*****')
+        print('***** Removing empty Sets from DB *****')
 
         con = lite.connect(DB_PATH)
         con.text_factory = str
@@ -821,7 +843,7 @@ class Uploadr:
                 cur.execute("DELETE FROM sets WHERE set_id = ?", (row[0],))
             con.commit()
 
-        print('*****Completed removing empty Sets from DB*****')
+        print('***** Completed removing empty Sets from DB *****')
 
     # Display Sets
     def displaySets( self ) :
@@ -836,7 +858,7 @@ class Uploadr:
 
     # Get sets from Flickr
     def getFlickrSets(self):
-        print('*****Adding Flickr Sets to DB*****')
+        print('***** Adding Flickr Sets to DB *****')
         con = lite.connect(DB_PATH)
         con.text_factory = str
         try:
@@ -867,7 +889,7 @@ class Uploadr:
                 self.reportError(res)
         except:
             print(str(sys.exc_info()))
-        print('*****Completed adding Flickr Sets to DB*****')
+        print('***** Completed adding Flickr Sets to DB *****')
 
 print("--------- Start time: " + time.strftime("%c") + " ---------");
 if __name__ == "__main__":
@@ -913,7 +935,7 @@ if __name__ == "__main__":
         flick.removeUselessSetsTable()
         flick.getFlickrSets()
         flick.upload()
-        flick.removeDeletedMedia()
+#        flick.removeDeletedMedia()
         flick.createSets()
         flick.addTagsToUploadedPhotos()
 print("--------- End time: " + time.strftime("%c") + " ---------");
