@@ -103,7 +103,6 @@ NICE_LEVEL = eval(config.get('Config','NICE_LEVEL'))
 PUSHOVER_TOKEN = eval(config.get('Config','PUSHOVER_TOKEN'))
 PUSHOVER_USER = eval(config.get('Config','PUSHOVER_USER'))
 
-
 #print FILES_DIR
 #print FLICKR
 #print SLEEP_TIME
@@ -152,8 +151,6 @@ class Uploadr:
         """ Constructor
         """
         self.token = self.getCachedToken()
-
-
 
     def signCall( self, data):
         """
@@ -324,8 +321,8 @@ class Uploadr:
             return False
         else :
             d = {
-                "auth_token"      :  str(self.token) ,
-                "method"          :  "flickr.auth.checkToken",
+                "auth_token"      : str(self.token) ,
+                "method"          : "flickr.auth.checkToken",
                 "format"          : "json",
                 "nojsoncallback"  : "1"
             }
@@ -391,11 +388,11 @@ class Uploadr:
           urllib.urlencode({
             "token": PUSHOVER_TOKEN,
             "user": PUSHOVER_USER,
-            "message": "Flickr Upload Started - " + str(len(allMedia)) + " files",
+            "message": "Flickr Upload Started",
           }), { "Content-type": "application/x-www-form-urlencoded" })
         conn.getresponse()
         """If you have Pushover.net enabled in the config, this will push a message letting
-           you know that a new upload has started with the number of new files found.
+           you know that a new upload has started.
         """
 
         coun = 0;
