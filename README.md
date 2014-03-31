@@ -1,4 +1,4 @@
-flickr-uploader
+flickr-uploadr
 ===============
 
 Upload a directory of media to Flickr to use as a backup to your local storage.
@@ -42,6 +42,8 @@ Edit the following variables in the uploadr.ini:
 * DB_PATH = os.path.join(FILES_DIR, "fickerdb")
 * FLICKR["api_key"] = ""
 * FLICKR["secret"] = ""
+* PUSHOVER_TOKEN = "" (optional)
+* PUSHOVER_USER = "" (optional)
 
 ## Usage
 Place the file uploadr.py in any directory and run (execution privs required):

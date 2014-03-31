@@ -37,6 +37,7 @@
     Upload files placed within a directory to your Flickr account.
 
    Inspired by:
+        https://github.com/trickortweak/flickr-uploader.git
         http://micampe.it/things/flickruploadr
         https://github.com/joelmx/flickrUploadr/blob/master/python3/uploadr.py
 
