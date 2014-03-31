@@ -9,14 +9,16 @@ Upload a directory of media to Flickr to use as a backup to your local storage.
 * Automatically creates "Sets" based on the folder name the media is in
 * Ignores ".picasabackup" directory (for Picasa users)
 * Automatically removes images from Flickr when they are removed from your local hard drive
+* Ability to get start & completion status via Pushover.net
 
 THIS SCRIPT IS PROVIDED WITH NO WARRANTY WHATSOEVER. PLEASE REVIEW THE SOURCE CODE TO MAKE SURE IT WILL WORK FOR YOUR NEEDS. IF YOU FIND A BUG, PLEASE REPORT IT.
 
 ## Requirements:
-
 * Python 2.7+
 * File write access (for the token and local database)
 * Flickr API key (free)
+
+## Optional - Pushover.net registration
 
 ## Setup:
 Go to http://www.flickr.com/services/apps/create/apply and apply for an API key
