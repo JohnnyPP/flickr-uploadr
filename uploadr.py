@@ -99,6 +99,8 @@ ALLOWED_EXT = eval(config.get('Config','ALLOWED_EXT'))
 FILE_MAX_SIZE = eval(config.get('Config','FILE_MAX_SIZE'))
 MANAGE_CHANGES = eval(config.get('Config','MANAGE_CHANGES'))
 NICE_LEVEL = eval(config.get('Config','NICE_LEVEL'))
+PUSHOVER_TOKEN = eval(config.get('Config','PUSHOVER_TOKEN'))
+PUSHOVER_USER = eval(config.get('Config','PUSHOVER_USER'))
 
 
 #print FILES_DIR
@@ -113,6 +115,8 @@ NICE_LEVEL = eval(config.get('Config','NICE_LEVEL'))
 #print FILE_MAX_SIZE
 #print MANAGE_CHANGES
 #print NICE_LEVEL
+#print PUSHOVER_TOKEN
+#print PUSHOVER_USER
 #sys.exit()
 
 ##
@@ -377,17 +381,22 @@ class Uploadr:
             For my setting I am running at a niceness of 15. 
         """
 
-#        conn = httplib.HTTPSConnection("api.pushover.net:443")
-#        conn.request("POST", "/1/messages.json",
-#          urllib.urlencode({
-#            "token": "APP_TOKEN",
-#            "user": "USER_KEY",
-#            "message": "hello world",
-#          }), { "Content-type": "application/x-www-form-urlencoded" })
-#        conn.getresponse()
 
         allMedia = self.grabNewFiles()
         print("Found " + str(len(allMedia)) + " files")
+
+        conn = httplib.HTTPSConnection("api.pushover.net:443")
+        conn.request("POST", "/1/messages.json",
+          urllib.urlencode({
+            "token": PUSHOVER_TOKEN,
+            "user": PUSHOVER_USER,
+            "message": "Flickr Upload Started - " + str(len(allMedia)) + " files",
+          }), { "Content-type": "application/x-www-form-urlencoded" })
+        conn.getresponse()
+        """If you have Pushover.net enabled in the config, this will push a message letting
+           you know that a new upload has started with the number of new files found.
+        """
+
         coun = 0;
         for i, file in enumerate( allMedia ):
             success = self.uploadFile( file )
@@ -400,6 +409,18 @@ class Uploadr:
         if (coun%100 > 0):
             print("   " + str(coun) + " files processed (uploaded or md5ed)")
         print("***** Completed uploading files & resetting NICENESS *****")
+
+        conn = httplib.HTTPSConnection("api.pushover.net:443")
+        conn.request("POST", "/1/messages.json",
+          urllib.urlencode({
+            "token": PUSHOVER_TOKEN,
+            "user": PUSHOVER_USER,
+            "message": "Flickr Upload Completed",
+          }), { "Content-type": "application/x-www-form-urlencoded" })
+        conn.getresponse()
+        """If you have Pushover.net enabled in the config, this will push a message letting
+           you know that the upload completed.
+        """
 
         os.nice(0)
         """This resets the nice level once upload is complete so the rest of the process can run as normal.
