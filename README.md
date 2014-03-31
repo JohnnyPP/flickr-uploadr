@@ -18,7 +18,8 @@ THIS SCRIPT IS PROVIDED WITH NO WARRANTY WHATSOEVER. PLEASE REVIEW THE SOURCE CO
 * File write access (for the token and local database)
 * Flickr API key (free)
 
-## Optional - Pushover.net registration
+## Optional
+* Pushover.net registration
 
 ## Setup:
 Go to http://www.flickr.com/services/apps/create/apply and apply for an API key
