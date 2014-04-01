@@ -62,11 +62,11 @@ It will crawl through all the files from the 'FILES_DIR' directory and begin the
 * Q: Are you a python ninja?
 * A: No, sorry. I just picked up the language to write this script because python can easily be installed on a Synology Diskstation.
 
+* Q: Will this run on devices other than a Synology? Like a Raspberry Pi?
+* A: Absolutely, see comments at the top of 'uploadr.py' to get some help with running in crontab.
+
 * Q: Is this script feature complete and fully tested?
 * A: Nope. It's a work in progress. I've tested it as needed for my needs, but it's possible to build additional features by contributing to the script.
-
-* Q: This says it's designed for Synology devices, can I run it on a Raspberry Pi?
-* A: Absolutely, see comments at the top of 'uploadr.py' to get some help with running in crontab?
 
 * Q: Will it still work if I have subdirectories of 'FILES_DIR'?
 * A: Yes. You can create multiple subs under 'FILES_DIR' and multiple sets will be created.
