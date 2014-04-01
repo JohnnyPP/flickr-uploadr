@@ -12,6 +12,7 @@
     -Automatically creates "Sets" based on the folder name the media is in
     -Ignores ".picasabackup" directory
     -Automatically removes images from Flickr when they are removed from your local hard drive
+       ** Auto removal of images is commented out below, if you want it back, just uncomment the two sections around lines 360 and 550
 
     Requirements:
 
@@ -37,7 +38,7 @@
     Upload files placed within a directory to your Flickr account.
 
    Inspired by:
-        https://github.com/trickortweak/flickr-uploader.git
+        https://github.com/trickortweak/flickr-uploader.git << Current code forked from this guy.  Thanks, p1neapples!
         http://micampe.it/things/flickruploadr
         https://github.com/joelmx/flickrUploadr/blob/master/python3/uploadr.py
 
@@ -45,11 +46,15 @@
 
    cron entry (runs at the top of every hour )
    0  *  *  *  * /full/path/to/uploadr.py > /dev/null 2>&1
+   
+   **** NOTE ON CRON - If like me (p1neapples) you are running this on a Raspberry Pi via 'crontab -e' and are pretty new at stuff like this,
+   **** you must have a soft link at least to the uploadr.ini file in your /home/pi/ directory as this is where the cron environment runs.
+   **** Example: If uploadr.py runs from /home/pi/flickr-uploadr, you must create a soft link for /home/pi/flickr-uploadr/uploadr.ini as /home/pi/uploadr.ini
+   **** Need to know how to create a soft link? Google it.   
 
    This code has been updated to use the new Auth API from flickr.
 
    You may use this code however you see fit in any form whatsoever.
-
 
 """
 import sys
@@ -122,6 +127,18 @@ PUSHOVER_USER = eval(config.get('Config','PUSHOVER_USER'))
 ##
 ##  You shouldn't need to modify anything below here
 ##
+
+conn = httplib.HTTPSConnection("api.pushover.net:443")
+conn.request("POST", "/1/messages.json",
+  urllib.urlencode({
+    "token": PUSHOVER_TOKEN,
+    "user": PUSHOVER_USER,
+    "message": "Flickr Uploadr Initiated",
+    }), { "Content-type": "application/x-www-form-urlencoded" })
+conn.getresponse()
+"""If you have Pushover.net enabled in the config, this will push a message letting
+   you know that process has been initiated.
+"""
 
 class APIConstants:
     """ APIConstants class

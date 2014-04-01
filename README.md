@@ -8,7 +8,7 @@ Upload a directory of media to Flickr to use as a backup to your local storage.
 * Stores image information locally using a simple SQLite database
 * Automatically creates "Sets" based on the folder name the media is in
 * Ignores ".picasabackup" directory (for Picasa users)
-* Automatically removes images from Flickr when they are removed from your local hard drive
+* Ability to remove images from Flickr when they are removed from your local hard drive (not enabled by default) 
 * Ability to get start & completion status via Pushover.net
 
 THIS SCRIPT IS PROVIDED WITH NO WARRANTY WHATSOEVER. PLEASE REVIEW THE SOURCE CODE TO MAKE SURE IT WILL WORK FOR YOUR NEEDS. IF YOU FIND A BUG, PLEASE REPORT IT.
@@ -18,7 +18,7 @@ THIS SCRIPT IS PROVIDED WITH NO WARRANTY WHATSOEVER. PLEASE REVIEW THE SOURCE CO
 * File write access (for the token and local database)
 * Flickr API key (free)
 
-## Optional
+## Optional:
 * Pushover.net registration
 
 ## Setup:
@@ -46,11 +46,11 @@ Edit the following variables in the uploadr.ini:
 * PUSHOVER_USER = "" (optional)
 
 ## Usage
-Place the file uploadr.py in any directory and run (execution privs required):
+Clone repository and run (execution privs required):
 
 $ ./uploadr.py
 
-It will crawl through all the files from the FILES_DIR directory and begin the upload process.
+It will crawl through all the files from the 'FILES_DIR' directory and begin the upload process.
 
 ## Q&A
 * Q: Who is this script designed for?
@@ -65,3 +65,8 @@ It will crawl through all the files from the FILES_DIR directory and begin the u
 * Q: Is this script feature complete and fully tested?
 * A: Nope. It's a work in progress. I've tested it as needed for my needs, but it's possible to build additional features by contributing to the script.
 
+* Q: This says it's designed for Synology devices, can I run it on a Raspberry Pi?
+* A: Absolutely, see comments at the top of 'uploadr.py' to get some help with running in crontab?
+
+* Q: Will it still work if I have subdirectories of 'FILES_DIR'?
+* A: Yes. You can create multiple subs under 'FILES_DIR' and multiple sets will be created.
