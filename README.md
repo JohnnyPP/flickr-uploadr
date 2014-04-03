@@ -3,6 +3,8 @@ flickr-uploadr
 
 Upload a directory of media to Flickr to use as a backup to your local storage.
 
+Have a Raspberry Pi laying around that you got bored with after realizing that you have no use for RaspBMC?  Installing Raspbian + Bittorrent Sync + Flickr Uploadr makes a great mostly automatic backup solution.
+
 ## Features:
 * Uploads images in full resolution to Flickr account (JPG, PNG, GIF)
 * Stores image information locally using a simple SQLite database
